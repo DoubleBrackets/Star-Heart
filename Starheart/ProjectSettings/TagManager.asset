@@ -41,5 +41,20 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Background
+    uniqueID: 1739127163
+    locked: 0
+  - name: Terrain
+    uniqueID: 1867299575
+    locked: 0
+  - name: NPC
+    uniqueID: 423355977
+    locked: 0
+  - name: Protag
+    uniqueID: 4196704753
+    locked: 0
+  - name: VFX
+    uniqueID: 3881162635
+    locked: 0
   m_RenderingLayers:
   - Default

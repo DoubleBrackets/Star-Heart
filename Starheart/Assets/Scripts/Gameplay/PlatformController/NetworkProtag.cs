@@ -4,7 +4,9 @@ using FishNet.Component.Prediction;
 using FishNet.Object;
 using FishNet.Object.Prediction;
 using FishNet.Transporting;
+using SpacePhysics;
 using UnityEngine;
+using Utils;
 
 namespace PlatformController
 {
@@ -18,10 +20,10 @@ namespace PlatformController
         {
             public float MoveSpeed;
             public float MoveAccel;
-            public float JumpHeight;
-            public float Gravity;
+            public float JumpVelocity;
             public Vector2 GroundCheckOffset;
             public Vector2 GroundCheckSize;
+            public float GroundCheckDistance;
             public LayerMask GroundLayer;
         }
 
@@ -123,6 +125,10 @@ namespace PlatformController
 
         private int _remainingTicksToPredict;
 
+        // For debug
+        private Vector2 _gravityAccel;
+        private Vector2 _groundNormal;
+
         private void Awake()
         {
             _predictionRigidbody = new PredictionRigidbody2D();
@@ -147,9 +153,26 @@ namespace PlatformController
 
         private void OnDrawGizmos()
         {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireCube((Vector2)_bodyAnchor.position + _moveStats.GroundCheckOffset,
-                _moveStats.GroundCheckSize);
+            if (!Application.isPlaying)
+            {
+                Gizmos.color = Color.red;
+                Vector3 position = _bodyAnchor.position;
+                Vector2 startPos = (Vector2)position + _moveStats.GroundCheckOffset;
+                Vector2 endPos = startPos - (Vector2)_bodyAnchor.up * _moveStats.GroundCheckDistance;
+                Gizmos.DrawWireCube(startPos,
+                    _moveStats.GroundCheckSize);
+                Gizmos.DrawLine(
+                    startPos,
+                    endPos);
+                Gizmos.DrawWireCube(endPos,
+                    _moveStats.GroundCheckSize);
+            }
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(_rb.position, _rb.position + _gravityAccel);
+
+            Gizmos.color = Color.blue;
+            Gizmos.DrawLine(_rb.position, _rb.position + _groundNormal);
         }
 
         public override void OnStartNetwork()
@@ -235,6 +258,23 @@ namespace PlatformController
                     NetworkObject.RigidbodyPauser.Unpause();
                 }
 
+                // Gravity calculations
+                Vector2 gravityAccel = GravityManager.Instance.CalculateGravity(_rb.position);
+                bool inGravity = gravityAccel != Vector2.zero;
+                _gravityAccel = gravityAccel;
+                Vector2 gravityUp = -gravityAccel.normalized;
+
+                if (inGravity)
+                {
+                    _bodyAnchor.up = -gravityAccel.normalized;
+                }
+
+                // Ground & normal
+                RaycastHit2D groundHit = UpdateGroundCheck();
+                bool isGrounded = groundHit.collider != null;
+                Vector2 groundNormal = isGrounded ? groundHit.normal : gravityUp;
+                Vector2 groundTangent = Vector2.Perpendicular(groundNormal);
+
                 if (state.ContainsCreated())
                 {
                     // Cache the horizontal input in case we have non-created ticks
@@ -243,32 +283,36 @@ namespace PlatformController
                         _horizontalInput = horizontal;
                     }
 
-                    Debug.DrawLine(_rb.position, _rb.position + Vector2.up * 0.1f, Color.green, 2f);
+                    Debug.DrawLine(_rb.position, _rb.position + gravityUp * 0.1f, Color.green, 2f);
                 }
                 else
                 {
                     // Use the cached input (predicting)
                     horizontal = _horizontalInput;
-                    Debug.DrawLine(_rb.position, _rb.position + Vector2.up * 0.1f, Color.red, 2f);
+                    Debug.DrawLine(_rb.position, _rb.position + gravityUp * 0.1f, Color.red, 2f);
                 }
 
-                float currentHorizontal = _rb.linearVelocity.x;
-                float desiredHorizontal = horizontal * _moveStats.MoveSpeed;
+                if (inGravity)
+                {
+                    Vector2 currentHorizontal = _rb.linearVelocity.ProjectOnPlane(groundNormal);
+                    Vector2 desiredHorizontal = -horizontal * _moveStats.MoveSpeed * groundTangent;
 
-                float newHorizontal =
-                    Mathf.MoveTowards(currentHorizontal, desiredHorizontal, _moveStats.MoveAccel * delta);
+                    Vector2 newHorizontal =
+                        Vector2.MoveTowards(currentHorizontal, desiredHorizontal, _moveStats.MoveAccel * delta);
 
-                // Horizontal movement
-                _predictionRigidbody.Velocity(new Vector2(newHorizontal, _rb.linearVelocity.y));
+                    Vector2 moveDelta = newHorizontal - currentHorizontal;
+                    Vector2 newVelocity = _rb.linearVelocity + moveDelta;
 
-                // Jump movement
-                bool isGrounded = UpdateGroundCheck();
+                    // Horizontal movement
+                    _predictionRigidbody.Velocity(newVelocity);
+                }
+
                 if (isGrounded)
                 {
                     if (data.Jump)
                     {
-                        float jumpVel = Mathf.Sqrt(2 * -_moveStats.Gravity * _moveStats.JumpHeight);
-                        _predictionRigidbody.AddForce(Vector2.up * jumpVel * _rb.mass, ForceMode2D.Impulse);
+                        _predictionRigidbody.AddForce(gravityUp * _moveStats.JumpVelocity * _rb.mass,
+                            ForceMode2D.Impulse);
 
                         if (state.IsTickedCreated())
                         {
@@ -276,13 +320,10 @@ namespace PlatformController
                         }
                     }
                 }
-                else
-                {
-                    // Gravity
-                    _predictionRigidbody.AddForce(Vector2.up * (_moveStats.Gravity * delta) * _rb.mass,
-                        ForceMode2D.Impulse);
-                }
 
+                // Gravity
+                _predictionRigidbody.AddForce(gravityAccel * delta * _rb.mass,
+                    ForceMode2D.Impulse);
                 _predictionRigidbody.Simulate();
 
                 if (state.ContainsCreated())
@@ -328,12 +369,20 @@ namespace PlatformController
             ReplicateVisuals((int)data.HorizontalInput, true);
         }
 
-        private bool UpdateGroundCheck()
+        private RaycastHit2D UpdateGroundCheck()
         {
-            Vector2 checkPos = _rb.position + _moveStats.GroundCheckOffset;
-            Collider2D hit = Physics2D.OverlapBox(checkPos, _moveStats.GroundCheckSize, 0, _moveStats.GroundLayer);
+            float angle = _bodyAnchor.transform.rotation.eulerAngles.z;
+            Vector2 offset = Quaternion.Euler(0, 0, angle) * _moveStats.GroundCheckOffset;
+            Vector2 checkPos = _rb.position + offset;
+            RaycastHit2D hit = Physics2D.BoxCast(
+                checkPos,
+                _moveStats.GroundCheckSize,
+                angle,
+                -_bodyAnchor.transform.up,
+                _moveStats.GroundCheckDistance,
+                _moveStats.GroundLayer);
 
-            return hit != null;
+            return hit;
         }
     }
 }
