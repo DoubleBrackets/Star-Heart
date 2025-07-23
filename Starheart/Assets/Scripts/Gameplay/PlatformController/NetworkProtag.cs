@@ -19,6 +19,10 @@ namespace PlatformController
         public struct MoveStats
         {
             public float MoveSpeed;
+
+            public float AlignLerpExp;
+            public float AlignAngleVelocity;
+
             public float MoveAccel;
             public float JumpVelocity;
             public Vector2 GroundCheckOffset;
@@ -266,7 +270,22 @@ namespace PlatformController
 
                 if (inGravity)
                 {
-                    _bodyAnchor.up = -gravityAccel.normalized;
+                    // Use lerp first then linear to get smooth rotations for sudden flips while still sticking on incremental rotations
+                    Quaternion targetRot = Quaternion.FromToRotation(Vector2.up, gravityUp);
+                    Quaternion currentRot = _bodyAnchor.rotation;
+
+                    float t = 1 - Mathf.Pow(0.01f, delta * _moveStats.AlignLerpExp);
+                    currentRot = Quaternion.Lerp(
+                        currentRot,
+                        targetRot,
+                        t);
+
+                    currentRot = Quaternion.RotateTowards(
+                        currentRot,
+                        targetRot,
+                        _moveStats.AlignAngleVelocity * delta);
+
+                    _bodyAnchor.rotation = currentRot;
                 }
 
                 // Ground & normal
@@ -321,9 +340,15 @@ namespace PlatformController
                     }
                 }
 
-                // Gravity
-                _predictionRigidbody.AddForce(gravityAccel * delta * _rb.mass,
-                    ForceMode2D.Impulse);
+                bool velIsDown = Vector2.Dot(_rb.linearVelocity, gravityUp) <= 0;
+                bool applyGravity = !(isGrounded && horizontal == 0 && velIsDown);
+
+                if (applyGravity)
+                {
+                    _predictionRigidbody.AddForce(gravityAccel * delta * _rb.mass,
+                        ForceMode2D.Impulse);
+                }
+
                 _predictionRigidbody.Simulate();
 
                 if (state.ContainsCreated())

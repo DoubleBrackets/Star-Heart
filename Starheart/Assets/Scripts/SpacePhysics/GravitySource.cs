@@ -23,7 +23,10 @@ namespace SpacePhysics
 
         private void Awake()
         {
-            CreateBorderLine();
+            if (_radiusLineRenderer)
+            {
+                CreateBorderLine();
+            }
         }
 
         private void Start()

@@ -563,11 +563,13 @@ MonoBehaviour:
   _spriteRenderer: {fileID: 2854875081800537686}
   _moveStats:
     MoveSpeed: 2
+    AlignLerpExp: 0.8
+    AlignAngleVelocity: 35
     MoveAccel: 15
-    JumpVelocity: 5
+    JumpVelocity: 7
     GroundCheckOffset: {x: 0, y: 0.16}
-    GroundCheckSize: {x: 0.4, y: 0.16}
-    GroundCheckDistance: 0.31
+    GroundCheckSize: {x: 0.3, y: 0.16}
+    GroundCheckDistance: 0.2
     GroundLayer:
       serializedVersion: 2
       m_Bits: 64
