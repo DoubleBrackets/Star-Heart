@@ -250,7 +250,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4afa82ae3200b82408d605c3dbdd1e38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damping: 0.2
+  Damping: 2
 --- !u!114 &1269551368917420463
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -267,6 +267,57 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 4252788108740507366}
   _networkObjectCache: {fileID: 4252788108740507366}
   _cinemachineCamera: {fileID: 6989218341156835406}
+  _rotateWithFollowTarget: {fileID: 8970023075175050090}
+--- !u!1 &3749663349827176481
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6755885605037347437}
+  - component: {fileID: 8291961759745991956}
+  m_Layer: 0
+  m_Name: HeartstarThrower
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6755885605037347437
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3749663349827176481}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3668169482089820840}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8291961759745991956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3749663349827176481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8979b1fe6e3a0a45874325fe681ab4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 4252788108740507366}
+  _networkObjectCache: {fileID: 0}
+  _heartStarPrefab: {fileID: 8184595699952606269, guid: 95c6f7495095c6f40895694ce7fd30fc, type: 3}
+  _throwPoint: {fileID: 3246211844271708730}
+  _networkProtag: {fileID: 8172236358443766988}
 --- !u!1 &4022523168851036555
 GameObject:
   m_ObjectHideFlags: 0
@@ -393,14 +444,14 @@ MonoBehaviour:
     EnableTeleport: 0
     TeleportThreshold: 0
     AdaptiveInterpolationValue: 0
-    InterpolationValue: 2
+    InterpolationValue: 4
     SmoothedProperties: 4294967295
     SnapNonSmoothedProperties: 0
   _spectatorMovementSettings:
     EnableTeleport: 0
     TeleportThreshold: 0
     AdaptiveInterpolationValue: 0
-    InterpolationValue: 2
+    InterpolationValue: 4
     SmoothedProperties: 4294967295
     SnapNonSmoothedProperties: 0
 --- !u!1 &5865302206220553652
@@ -413,7 +464,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3668169482089820840}
   - component: {fileID: 4252788108740507366}
-  - component: {fileID: 7325153725801746252}
+  - component: {fileID: 8172236358443766988}
   m_Layer: 0
   m_Name: Protag
   m_TagString: Untagged
@@ -435,6 +486,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 414026022610272297}
+  - {fileID: 6755885605037347437}
   - {fileID: 2809941751172148327}
   - {fileID: 1502076688621822847}
   m_Father: {fileID: 0}
@@ -458,9 +510,9 @@ MonoBehaviour:
   <PredictedSpawn>k__BackingField: {fileID: 0}
   <PredictedOwner>k__BackingField: {fileID: 0}
   NetworkBehaviours:
-  - {fileID: 9130230227042637897}
+  - {fileID: 0}
   - {fileID: 1269551368917420463}
-  - {fileID: 7325153725801746252}
+  - {fileID: 0}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects:
   - {fileID: 0}
@@ -495,7 +547,7 @@ MonoBehaviour:
     Rotation: {x: 0, y: 0, z: 0, w: 1}
     Scale: {x: 1, y: 1, z: 1}
     IsValid: 1
---- !u!114 &7325153725801746252
+--- !u!114 &8172236358443766988
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -504,12 +556,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5865302206220553652}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a6a39c46bf52104ba8efe3100bce3f7, type: 3}
+  m_Script: {fileID: 11500000, guid: 9a5cc69f40bc51442bb7f7e86693a48a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 2
+  _componentIndexCache: 255
   _addedNetworkObject: {fileID: 4252788108740507366}
-  _networkObjectCache: {fileID: 4252788108740507366}
+  _networkObjectCache: {fileID: 0}
 --- !u!1 &7127263600157173070
 GameObject:
   m_ObjectHideFlags: 0
@@ -519,9 +571,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 414026022610272297}
-  - component: {fileID: 9130230227042637897}
+  - component: {fileID: 4330222185304077792}
   m_Layer: 0
-  m_Name: Movement
+  m_Name: ProtagBehavior
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -542,7 +594,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3668169482089820840}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &9130230227042637897
+--- !u!114 &4330222185304077792
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -551,25 +603,28 @@ MonoBehaviour:
   m_GameObject: {fileID: 7127263600157173070}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a5cc69f40bc51442bb7f7e86693a48a, type: 3}
+  m_Script: {fileID: 11500000, guid: 745a917c8c8a4f0408555b039aab7db5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 0
+  _componentIndexCache: 255
   _addedNetworkObject: {fileID: 4252788108740507366}
-  _networkObjectCache: {fileID: 4252788108740507366}
+  _networkObjectCache: {fileID: 0}
   _rb: {fileID: 4897355879948822563}
   _bodyAnchor: {fileID: 2809941751172148327}
   _animator: {fileID: 754027617433613360}
   _spriteRenderer: {fileID: 2854875081800537686}
+  _protagCamera: {fileID: 1269551368917420463}
   _moveStats:
     MoveSpeed: 2
     AlignLerpExp: 0.8
     AlignAngleVelocity: 35
-    MoveAccel: 15
+    MaxPossibleSpeed: 13
+    GroundAccel: 20
+    AirMoveAccel: 5
     JumpVelocity: 7
-    GroundCheckOffset: {x: 0, y: 0.16}
-    GroundCheckSize: {x: 0.3, y: 0.16}
-    GroundCheckDistance: 0.2
+    GroundCheckOffset: {x: 0, y: 0.12}
+    GroundCheckSize: {x: 0.4, y: 0.1}
+    GroundCheckDistance: 0.16
     GroundLayer:
       serializedVersion: 2
       m_Bits: 64

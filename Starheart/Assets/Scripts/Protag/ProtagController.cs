@@ -4,16 +4,17 @@ using FishNet.Component.Prediction;
 using FishNet.Object;
 using FishNet.Object.Prediction;
 using FishNet.Transporting;
+using Gameplay;
 using SpacePhysics;
 using UnityEngine;
 using Utils;
 
-namespace PlatformController
+namespace Protag
 {
     /// <summary>
     ///     Networked 2D rigidbody character controller with prediction
     /// </summary>
-    public class NetworkProtag : NetworkBehaviour
+    public class ProtagController : NetworkBehaviour
     {
         [Serializable]
         public struct MoveStats
@@ -23,7 +24,10 @@ namespace PlatformController
             public float AlignLerpExp;
             public float AlignAngleVelocity;
 
-            public float MoveAccel;
+            public float MaxPossibleSpeed;
+
+            public float GroundAccel;
+            public float AirMoveAccel;
             public float JumpVelocity;
             public Vector2 GroundCheckOffset;
             public Vector2 GroundCheckSize;
@@ -35,12 +39,14 @@ namespace PlatformController
         {
             public float HorizontalInput;
             public bool Jump;
+            public GravityManager.GravityEffect GravityEffect;
             public float Salty;
 
-            public MovementData(float horizontalInput, bool jump, float salty)
+            public MovementData(float horizontalInput, bool jump, GravityManager.GravityEffect effect, float salty)
             {
                 HorizontalInput = horizontalInput;
                 Jump = jump;
+                GravityEffect = effect;
                 Salty = salty;
                 _tick = 0;
             }
@@ -66,14 +72,16 @@ namespace PlatformController
         private struct ReconcileData : IReconcileData
         {
             public readonly PredictionRigidbody2D Rigidbody2DState;
+            public Vector2 Velocity;
             public float HorizontalInput;
 
             private uint _tick;
 
-            public ReconcileData(PredictionRigidbody2D rigidbody2DState, float horizontalInput)
+            public ReconcileData(PredictionRigidbody2D rigidbody2DState, float horizontalInput, Vector2 velocity)
             {
                 Rigidbody2DState = rigidbody2DState;
                 HorizontalInput = horizontalInput;
+                Velocity = velocity;
                 _tick = 0;
             }
 
@@ -106,6 +114,9 @@ namespace PlatformController
         [SerializeField]
         private SpriteRenderer _spriteRenderer;
 
+        [SerializeField]
+        private ProtagCamera _protagCamera;
+
         [Header("Config")]
 
         [SerializeField]
@@ -114,9 +125,6 @@ namespace PlatformController
         [SerializeField]
         private bool _collideWithPlayers;
 
-        [SerializeField]
-        private int _spectatorTicksToPredict;
-
         public event Action OnJump;
 
         private float _horizontalInput;
@@ -124,10 +132,7 @@ namespace PlatformController
 
         private PredictionRigidbody2D _predictionRigidbody;
 
-        private Rigidbody2DState _rbState;
         private bool _frozen;
-
-        private int _remainingTicksToPredict;
 
         // For debug
         private Vector2 _gravityAccel;
@@ -183,22 +188,6 @@ namespace PlatformController
         {
             TimeManager.OnTick += TimeManager_OnTick;
             TimeManager.OnPostTick += TimeManager_PostTick;
-            RenameGameObject();
-        }
-
-        private void RenameGameObject()
-        {
-            gameObject.name = "NetworkProtag";
-            if (Owner.IsHost)
-            {
-                gameObject.name += "[Host]";
-            }
-            else
-            {
-                gameObject.name += "[Client]";
-            }
-
-            gameObject.name += $"[Owner={OwnerId}]";
         }
 
         public override void OnStopNetwork()
@@ -211,7 +200,11 @@ namespace PlatformController
         {
             if (IsController)
             {
-                var data = new MovementData(_horizontalInput, _jumpInput, 1);
+                // Gravity well is an "input", since it's state is independent of protag's replicate
+                // The heartstar doesn't always reconcile/replicate, so calculating this inside replicate causes issues
+                // Calculating it out here works fine as long as the heartstar gravity physics never needs to correct (which it shouldn't)
+                GravityManager.GravityEffect gravityEffect = GravityManager.Instance.CalculateGravity(_rb.position);
+                var data = new MovementData(_horizontalInput, _jumpInput, gravityEffect, 1);
                 Replicate(data);
             }
             else
@@ -233,16 +226,16 @@ namespace PlatformController
             Channel channel = Channel.Unreliable)
         {
             BadLogger.LogTrace(
-                $"Replicating {state.ContainsTicked()} {state.ContainsReplayed()} {state.ContainsCreated()} {data.HorizontalInput} {data.Jump} tick {data.GetTick()} {name}");
+                $"B {data.GetTick()} {state.ContainsTicked()} {state.ContainsReplayed()} {state.ContainsCreated()} " +
+                $"{data.GravityEffect.TotalAcceleration} {_rb.position} {_rb.linearVelocity} {data.Jump} {name}");
             var delta = (float)TimeManager.TickDelta;
 
             float horizontal = data.HorizontalInput;
 
             bool canPause = !IsOwner && !IsServerStarted;
 
-            if (state.IsFuture() && _remainingTicksToPredict <= 0)
+            if (state.IsFuture())
             {
-                // Pause for future ticks to prevent snapping from predicting on non-owning clients
                 if (canPause)
                 {
                     NetworkObject.RigidbodyPauser.Pause();
@@ -250,12 +243,6 @@ namespace PlatformController
             }
             else
             {
-                // Predict a configurable number of ticks into the future by assuming held inputs
-                if (state.IsFuture())
-                {
-                    _remainingTicksToPredict--;
-                }
-
                 // Unpause for created ticks
                 if (canPause)
                 {
@@ -263,17 +250,30 @@ namespace PlatformController
                 }
 
                 // Gravity calculations
-                Vector2 gravityAccel = GravityManager.Instance.CalculateGravity(_rb.position);
-                bool inGravity = gravityAccel != Vector2.zero;
-                _gravityAccel = gravityAccel;
-                Vector2 gravityUp = -gravityAccel.normalized;
+                GravityManager.GravityEffect gravityEffect = data.GravityEffect;
+                Vector2 totalGravAccel = gravityEffect.TotalAcceleration;
+                Vector2 planetGravAccel = gravityEffect.PlanetAcceleration;
+                Vector2 planetGravityUp = -planetGravAccel.normalized;
 
-                if (inGravity)
+                _gravityAccel = totalGravAccel;
+
+                // Align camera only on planet
+                if (IsOwner)
                 {
-                    // Use lerp first then linear to get smooth rotations for sudden flips while still sticking on incremental rotations
-                    Quaternion targetRot = Quaternion.FromToRotation(Vector2.up, gravityUp);
+                    _protagCamera.SetAlignRotation(gravityEffect.InPlanetGravity);
+                }
+
+                if (gravityEffect.InGravity)
+                {
+                    // Align to velocity in space, to planet gravity otherwise
+                    Vector2 targetUpVector = gravityEffect.InPlanetGravity
+                        ? planetGravityUp
+                        : _rb.linearVelocity.normalized;
+
+                    Quaternion targetRot = Quaternion.FromToRotation(Vector2.up, targetUpVector);
                     Quaternion currentRot = _bodyAnchor.rotation;
 
+                    // Use lerp first then linear to get smooth rotations for sudden flips while still sticking on incremental rotations
                     float t = 1 - Mathf.Pow(0.01f, delta * _moveStats.AlignLerpExp);
                     currentRot = Quaternion.Lerp(
                         currentRot,
@@ -291,7 +291,7 @@ namespace PlatformController
                 // Ground & normal
                 RaycastHit2D groundHit = UpdateGroundCheck();
                 bool isGrounded = groundHit.collider != null;
-                Vector2 groundNormal = isGrounded ? groundHit.normal : gravityUp;
+                Vector2 groundNormal = isGrounded ? groundHit.normal : planetGravityUp;
                 Vector2 groundTangent = Vector2.Perpendicular(groundNormal);
 
                 if (state.ContainsCreated())
@@ -302,22 +302,25 @@ namespace PlatformController
                         _horizontalInput = horizontal;
                     }
 
-                    Debug.DrawLine(_rb.position, _rb.position + gravityUp * 0.1f, Color.green, 2f);
+                    Debug.DrawLine(_rb.position, _rb.position + planetGravityUp * 0.1f, Color.green, 2f);
                 }
                 else
                 {
                     // Use the cached input (predicting)
                     horizontal = _horizontalInput;
-                    Debug.DrawLine(_rb.position, _rb.position + gravityUp * 0.1f, Color.red, 2f);
+                    Debug.DrawLine(_rb.position, _rb.position + planetGravityUp * 0.1f, Color.red, 2f);
                 }
 
-                if (inGravity)
+                if (gravityEffect.InPlanetGravity)
                 {
                     Vector2 currentHorizontal = _rb.linearVelocity.ProjectOnPlane(groundNormal);
                     Vector2 desiredHorizontal = -horizontal * _moveStats.MoveSpeed * groundTangent;
+                    float accel = isGrounded
+                        ? _moveStats.GroundAccel
+                        : _moveStats.AirMoveAccel;
 
                     Vector2 newHorizontal =
-                        Vector2.MoveTowards(currentHorizontal, desiredHorizontal, _moveStats.MoveAccel * delta);
+                        Vector2.MoveTowards(currentHorizontal, desiredHorizontal, accel * delta);
 
                     Vector2 moveDelta = newHorizontal - currentHorizontal;
                     Vector2 newVelocity = _rb.linearVelocity + moveDelta;
@@ -326,11 +329,18 @@ namespace PlatformController
                     _predictionRigidbody.Velocity(newVelocity);
                 }
 
+                if (_rb.linearVelocity.magnitude > _moveStats.MaxPossibleSpeed)
+                {
+                    // Clamp the velocity to the max possible speed
+                    _predictionRigidbody.Velocity(
+                        _rb.linearVelocity.normalized * _moveStats.MaxPossibleSpeed);
+                }
+
                 if (isGrounded)
                 {
                     if (data.Jump)
                     {
-                        _predictionRigidbody.AddForce(gravityUp * _moveStats.JumpVelocity * _rb.mass,
+                        _predictionRigidbody.AddForce(planetGravityUp * _moveStats.JumpVelocity * _rb.mass,
                             ForceMode2D.Impulse);
 
                         if (state.IsTickedCreated())
@@ -340,13 +350,14 @@ namespace PlatformController
                     }
                 }
 
-                bool velIsDown = Vector2.Dot(_rb.linearVelocity, gravityUp) <= 0;
+                bool velIsDown = Vector2.Dot(_rb.linearVelocity, planetGravityUp) <= 0;
                 bool applyGravity = !(isGrounded && horizontal == 0 && velIsDown);
 
                 if (applyGravity)
                 {
-                    _predictionRigidbody.AddForce(gravityAccel * delta * _rb.mass,
+                    _predictionRigidbody.AddForce(totalGravAccel * delta * _rb.mass,
                         ForceMode2D.Impulse);
+                    BadLogger.LogTrace(totalGravAccel.ToString());
                 }
 
                 _predictionRigidbody.Simulate();
@@ -380,18 +391,16 @@ namespace PlatformController
                 return;
             }
 
-            var data = new ReconcileData(_predictionRigidbody, _horizontalInput);
+            var data = new ReconcileData(_predictionRigidbody, _horizontalInput, _rb.linearVelocity);
             Reconcile(data);
         }
 
         [Reconcile]
         private void Reconcile(ReconcileData data, Channel channel = Channel.Unreliable)
         {
-            BadLogger.LogTrace(
-                $"Reconciled tick {data.GetTick()} {name}");
-            _remainingTicksToPredict = _spectatorTicksToPredict;
             _predictionRigidbody.Reconcile(data.Rigidbody2DState);
             ReplicateVisuals((int)data.HorizontalInput, true);
+            BadLogger.LogTrace($"A {data.GetTick()} {data.Velocity} {name}");
         }
 
         private RaycastHit2D UpdateGroundCheck()

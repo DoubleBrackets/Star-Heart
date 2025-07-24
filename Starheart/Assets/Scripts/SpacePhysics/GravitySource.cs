@@ -1,9 +1,16 @@
+using FishNet.Object;
 using UnityEngine;
 
 namespace SpacePhysics
 {
-    public class GravitySource : MonoBehaviour
+    public class GravitySource : NetworkBehaviour
     {
+        public enum GravityTypes
+        {
+            Planet,
+            Heartstar
+        }
+
         [Header("Border Visual")]
 
         [SerializeField]
@@ -17,9 +24,15 @@ namespace SpacePhysics
         [SerializeField]
         private float _gravityAcceleration;
 
+        [SerializeField]
+        private GravityTypes _gravityType;
+
         public Vector2 CenterPosition => transform.position;
         public float Radius => _radius;
         public float GravityAccel => _gravityAcceleration;
+        public GravityTypes GravityType => _gravityType;
+
+        public bool IsActive { get; set; } = true;
 
         private void Awake()
         {
@@ -29,20 +42,20 @@ namespace SpacePhysics
             }
         }
 
-        private void Start()
-        {
-            GravityManager.Instance.RegisterGravitySource(this);
-        }
-
-        private void OnDestroy()
-        {
-            GravityManager.Instance.UnregisterGravitySource(this);
-        }
-
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(CenterPosition, _radius);
+        }
+
+        public override void OnStartNetwork()
+        {
+            GravityManager.Instance.RegisterGravitySource(this);
+        }
+
+        public override void OnStopNetwork()
+        {
+            GravityManager.Instance.UnregisterGravitySource(this);
         }
 
         private void CreateBorderLine()

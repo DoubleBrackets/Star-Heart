@@ -5,6 +5,14 @@ namespace SpacePhysics
 {
     public class GravityManager : MonoBehaviour
     {
+        public struct GravityEffect
+        {
+            public Vector2 TotalAcceleration;
+            public Vector2 PlanetAcceleration;
+            public bool InPlanetGravity;
+            public bool InGravity => TotalAcceleration != Vector2.zero;
+        }
+
         public static GravityManager Instance { get; private set; }
 
         private List<GravitySource> gravitySources = new();
@@ -41,13 +49,15 @@ namespace SpacePhysics
             gravitySources.Remove(source);
         }
 
-        public Vector2 CalculateGravity(Vector2 position)
+        public GravityEffect CalculateGravity(Vector2 position)
         {
             Vector2 totalGravity = Vector2.zero;
+            Vector2 planetGravity = Vector2.zero;
 
+            var inPlanetGravity = false;
             foreach (GravitySource source in gravitySources)
             {
-                if (source == null)
+                if (source == null || !source.IsActive)
                 {
                     continue;
                 }
@@ -57,11 +67,23 @@ namespace SpacePhysics
                 float dist = direction.magnitude;
                 if (dist <= source.Radius)
                 {
-                    totalGravity += direction.normalized * source.GravityAccel;
+                    Vector2 accel = direction.normalized * source.GravityAccel;
+                    totalGravity += accel;
+
+                    if (source.GravityType == GravitySource.GravityTypes.Planet)
+                    {
+                        inPlanetGravity = true;
+                        planetGravity += accel;
+                    }
                 }
             }
 
-            return totalGravity;
+            return new GravityEffect
+            {
+                TotalAcceleration = totalGravity,
+                PlanetAcceleration = planetGravity,
+                InPlanetGravity = inPlanetGravity
+            };
         }
     }
 }

@@ -1,0 +1,56 @@
+using FishNet.Connection;
+using FishNet.Object;
+using FishNet.Serializing;
+using UnityEngine;
+
+namespace Protag
+{
+    public class NetworkProtag : NetworkBehaviour
+    {
+        public int PlayerNumber => _playerNumber;
+
+        /// <summary>
+        ///     The player number assigned to this protag, either 0 or 1
+        /// </summary>
+        private int _playerNumber;
+
+        public override void WritePayload(NetworkConnection connection, Writer writer)
+        {
+            // Not predicted, we know this is from server
+            if (ProtagManager.Instance.GetProtagData(Owner, out ProtagManager.ProtagData data))
+            {
+                writer.WriteInt32(data.PlayerNumber);
+            }
+            else
+            {
+                writer.WriteInt32(0);
+            }
+        }
+
+        public override void ReadPayload(NetworkConnection connection, Reader reader)
+        {
+            _playerNumber = reader.ReadInt32();
+        }
+
+        public override void OnStartNetwork()
+        {
+            RenameGameObject(NetworkObject.gameObject);
+        }
+
+        private void RenameGameObject(GameObject target)
+        {
+            target.name = "Protag";
+            target.name += $"[Player={PlayerNumber}]";
+            if (Owner.IsHost)
+            {
+                target.name += "[Host]";
+            }
+            else
+            {
+                target.name += "[Client]";
+            }
+
+            target.name += $"[Owner={OwnerId}]";
+        }
+    }
+}

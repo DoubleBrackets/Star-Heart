@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _fontSize: 15
-  _color: {r: 0, g: 0, b: 0, a: 1}
+  _color: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &1939251080611107947
 GameObject:
   m_ObjectHideFlags: 0
@@ -91,7 +91,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9b6b565cd9533c4ebc18003f0fc18a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _color: {r: 0, g: 0, b: 0, a: 1}
+  _color: {r: 1, g: 1, b: 1, a: 1}
   _placement: 1
   _hideTickRate: 1
 --- !u!114 &9178749264320862820
@@ -109,7 +109,7 @@ MonoBehaviour:
   _runInRelease: 0
   _secondsAveraged: 1
   _updateInterval: 1
-  _color: {r: 0, g: 0, b: 0, a: 1}
+  _color: {r: 1, g: 1, b: 1, a: 1}
   _placement: 3
   _showOutgoing: 1
   _showIncoming: 1
@@ -309,9 +309,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e08bb003fce297d4086cf8cba5aa459a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _dropExcessiveReplicates: 1
+  _dropExcessiveReplicates: 0
   _maximumServerReplicates: 15
-  _createLocalStates: 1
+  _createLocalStates: 0
   _stateInterpolation: 3
   _stateOrder: 1
 --- !u!114 &8486001276023952663
@@ -328,7 +328,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _updateOrder: 0
   _timingType: 0
-  _allowTickDropping: 1
+  _allowTickDropping: 0
   _maximumFrameTicks: 3
   _tickRate: 30
   _pingInterval: 1
@@ -383,7 +383,7 @@ MonoBehaviour:
   _authenticator: {fileID: 0}
   _remoteClientTimeout: 2
   _remoteClientTimeoutDuration: 60
-  _allowPredictedSpawning: 0
+  _allowPredictedSpawning: 1
   _reservedObjectIds: 15
   _syncTypeRate: 0.1
   SpawnPacking:
