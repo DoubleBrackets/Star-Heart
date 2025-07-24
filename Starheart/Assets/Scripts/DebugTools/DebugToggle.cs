@@ -9,7 +9,7 @@ namespace DebugTools
 
         private void Awake()
         {
-            _debugObject.SetActive(Application.isEditor);
+            _debugObject.SetActive(false);
         }
 
         private void Update()

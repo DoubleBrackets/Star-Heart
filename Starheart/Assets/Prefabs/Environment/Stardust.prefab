@@ -5059,9 +5059,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a60424afcf0b5984dbe878a1f21c10b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 1
   _addedNetworkObject: {fileID: 3286265175306237912}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 3286265175306237912}
   MaximumSimultaneousHits: 16
   AdditionalSize: 0.1
   Layers:
@@ -5169,6 +5169,7 @@ MonoBehaviour:
   <PredictedOwner>k__BackingField: {fileID: 0}
   NetworkBehaviours:
   - {fileID: 8047511748289284129}
+  - {fileID: 829227728773151025}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -5195,7 +5196,7 @@ MonoBehaviour:
   _teleportThreshold: 1
   <PrefabId>k__BackingField: 2
   <SpawnableCollectionId>k__BackingField: 0
-  <AssetPathHash>k__BackingField: 5356657044632296227
+  <AssetPathHash>k__BackingField: 15443683713117699977
   <SceneId>k__BackingField: 0
   SerializedTransformProperties:
     Position: {x: 0, y: 0, z: 0}

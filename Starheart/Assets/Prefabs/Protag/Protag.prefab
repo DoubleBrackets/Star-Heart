@@ -263,7 +263,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 216c3897bf6e2d7458ea2468c5b09ae1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 1
+  _componentIndexCache: 3
   _addedNetworkObject: {fileID: 4252788108740507366}
   _networkObjectCache: {fileID: 4252788108740507366}
   _cinemachineCamera: {fileID: 6989218341156835406}
@@ -312,9 +312,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8979b1fe6e3a0a45874325fe681ab4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 2
   _addedNetworkObject: {fileID: 4252788108740507366}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 4252788108740507366}
   _heartStarPrefab: {fileID: 8184595699952606269, guid: 95c6f7495095c6f40895694ce7fd30fc, type: 3}
   _throwPoint: {fileID: 3246211844271708730}
   _networkProtag: {fileID: 8172236358443766988}
@@ -433,9 +433,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453481867b26f7c43b5bf38802a5f50e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 4
   _addedNetworkObject: {fileID: 4252788108740507366}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 4252788108740507366}
   _initializationSettings:
     TargetTransform: {fileID: 2809941751172148327}
     DetachOnStart: 0
@@ -510,12 +510,13 @@ MonoBehaviour:
   <PredictedSpawn>k__BackingField: {fileID: 0}
   <PredictedOwner>k__BackingField: {fileID: 0}
   NetworkBehaviours:
-  - {fileID: 0}
+  - {fileID: 8172236358443766988}
+  - {fileID: 4330222185304077792}
+  - {fileID: 8291961759745991956}
   - {fileID: 1269551368917420463}
-  - {fileID: 0}
+  - {fileID: 2762428323046089121}
   InitializedParentNetworkBehaviour: {fileID: 0}
-  InitializedNestedNetworkObjects:
-  - {fileID: 0}
+  InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
   RuntimeChildNetworkBehaviours: []
   _isNetworked: 1
@@ -538,9 +539,9 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 12
+  <PrefabId>k__BackingField: 15
   <SpawnableCollectionId>k__BackingField: 0
-  <AssetPathHash>k__BackingField: 18221247586097704493
+  <AssetPathHash>k__BackingField: 9061590210928610961
   <SceneId>k__BackingField: 0
   SerializedTransformProperties:
     Position: {x: 0, y: 0, z: 0}
@@ -559,9 +560,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a5cc69f40bc51442bb7f7e86693a48a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 0
   _addedNetworkObject: {fileID: 4252788108740507366}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 4252788108740507366}
 --- !u!1 &7127263600157173070
 GameObject:
   m_ObjectHideFlags: 0
@@ -606,9 +607,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 745a917c8c8a4f0408555b039aab7db5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 1
   _addedNetworkObject: {fileID: 4252788108740507366}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 4252788108740507366}
   _rb: {fileID: 4897355879948822563}
   _bodyAnchor: {fileID: 2809941751172148327}
   _animator: {fileID: 754027617433613360}

@@ -4799,7 +4799,7 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -413804661
-  m_SortingLayer: 5
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -9750,7 +9750,7 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -413804661
-  m_SortingLayer: 5
+  m_SortingLayer: 6
   m_SortingOrder: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
@@ -9828,9 +9828,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3741f4da8bbc9d438753ca6c7b68d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 2
   _addedNetworkObject: {fileID: 4551010333527506108}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 4551010333527506108}
   _radiusLineRenderer: {fileID: 0}
   _radius: 1000
   _gravityAcceleration: 10
@@ -9882,9 +9882,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 453481867b26f7c43b5bf38802a5f50e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 3
   _addedNetworkObject: {fileID: 4551010333527506108}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 4551010333527506108}
   _initializationSettings:
     TargetTransform: {fileID: 7906935177199953087}
     DetachOnStart: 0
@@ -10032,10 +10032,13 @@ MonoBehaviour:
   WasActiveDuringEdit: 0
   WasActiveDuringEdit_Set1: 1
   <ComponentIndex>k__BackingField: 0
-  <PredictedSpawn>k__BackingField: {fileID: 0}
+  <PredictedSpawn>k__BackingField: {fileID: 5785997845986236802}
   <PredictedOwner>k__BackingField: {fileID: 0}
   NetworkBehaviours:
   - {fileID: 8184595699952606269}
+  - {fileID: 5785997845986236802}
+  - {fileID: 4483032433871486775}
+  - {fileID: 5964230373935550036}
   InitializedParentNetworkBehaviour: {fileID: 0}
   InitializedNestedNetworkObjects: []
   RuntimeParentNetworkBehaviour: {fileID: 0}
@@ -10062,7 +10065,7 @@ MonoBehaviour:
   _teleportThreshold: 1
   <PrefabId>k__BackingField: 0
   <SpawnableCollectionId>k__BackingField: 0
-  <AssetPathHash>k__BackingField: 1280318501158736415
+  <AssetPathHash>k__BackingField: 9031956419104331411
   <SceneId>k__BackingField: 0
   SerializedTransformProperties:
     Position: {x: 0, y: 0, z: 0}
@@ -10081,8 +10084,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2b597e1828355a4d994a69cbb11ef85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 1
   _addedNetworkObject: {fileID: 4551010333527506108}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 4551010333527506108}
   _allowSpawning: 1
   _allowDespawning: 1

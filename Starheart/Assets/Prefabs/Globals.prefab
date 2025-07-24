@@ -106,7 +106,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bc8f0363ddc75946a958043c5e49a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _runInRelease: 0
+  _runInRelease: 1
   _secondsAveraged: 1
   _updateInterval: 1
   _color: {r: 1, g: 1, b: 1, a: 1}
