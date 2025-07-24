@@ -20,6 +20,9 @@ namespace Protag
         [SerializeField]
         private Transform _spawnPos;
 
+        [SerializeField]
+        private bool _spawnOnlyPlayer2;
+
         public static ProtagManager Instance { get; private set; }
 
         private readonly SyncDictionary<NetworkConnection, ProtagData> protags = new();
@@ -57,6 +60,11 @@ namespace Protag
             {
                 // Register host client
                 RegisterPlayer(LocalConnection);
+
+                if (!_spawnOnlyPlayer2)
+                {
+                    SpawnPlayer(LocalConnection, _spawnPos.position);
+                }
             }
             else
             {
@@ -81,7 +89,7 @@ namespace Protag
         {
             if (!protags.ContainsKey(conn))
             {
-                int playerCount = protags.Count;
+                int playerCount = Mathf.Min(1, protags.Count);
 
                 BadLogger.LogInfo(
                     $"ProtagManager: Adding new protag for connection {conn.ClientId} with player number {playerCount}",

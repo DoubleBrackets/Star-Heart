@@ -72,16 +72,14 @@ namespace Protag
         private struct ReconcileData : IReconcileData
         {
             public readonly PredictionRigidbody2D Rigidbody2DState;
-            public Vector2 Velocity;
             public float HorizontalInput;
 
             private uint _tick;
 
-            public ReconcileData(PredictionRigidbody2D rigidbody2DState, float horizontalInput, Vector2 velocity)
+            public ReconcileData(PredictionRigidbody2D rigidbody2DState, float horizontalInput)
             {
                 Rigidbody2DState = rigidbody2DState;
                 HorizontalInput = horizontalInput;
-                Velocity = velocity;
                 _tick = 0;
             }
 
@@ -391,7 +389,7 @@ namespace Protag
                 return;
             }
 
-            var data = new ReconcileData(_predictionRigidbody, _horizontalInput, _rb.linearVelocity);
+            var data = new ReconcileData(_predictionRigidbody, _horizontalInput);
             Reconcile(data);
         }
 
@@ -400,7 +398,7 @@ namespace Protag
         {
             _predictionRigidbody.Reconcile(data.Rigidbody2DState);
             ReplicateVisuals((int)data.HorizontalInput, true);
-            BadLogger.LogTrace($"A {data.GetTick()} {data.Velocity} {name}");
+            BadLogger.LogTrace($"A {data.GetTick()} {name}");
         }
 
         private RaycastHit2D UpdateGroundCheck()
