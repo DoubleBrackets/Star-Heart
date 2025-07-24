@@ -37,14 +37,7 @@ namespace Protag
 
         public override void OnStartServer()
         {
-            if (Instance == null)
-            {
-                Instance = this;
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
+            Instance = this;
 
             Instance.ServerManager.OnRemoteConnectionState += HandleRemoteConnectionState;
         }

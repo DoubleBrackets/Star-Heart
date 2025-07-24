@@ -201,7 +201,7 @@ MonoBehaviour:
     CustomLookAtTarget: 0
   Lens:
     FieldOfView: 60
-    OrthographicSize: 7
+    OrthographicSize: 9
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -629,7 +629,6 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 64
   _collideWithPlayers: 0
-  _spectatorTicksToPredict: 0
 --- !u!1 &8617471955940012221
 GameObject:
   m_ObjectHideFlags: 0

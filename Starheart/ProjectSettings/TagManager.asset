@@ -53,6 +53,9 @@ TagManager:
   - name: Protag
     uniqueID: 4196704753
     locked: 0
+  - name: Pickups
+    uniqueID: 1897072843
+    locked: 0
   - name: VFX
     uniqueID: 3881162635
     locked: 0
