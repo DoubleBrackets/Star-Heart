@@ -1,16 +1,16 @@
-name: Unity-Release-Builder
+name: Unity-Builder
 
 concurrency:
   group: ci-${{ github.actor }}-${{ github.ref }}-release-runner
   cancel-in-progress: true
 
 env:
-  PROJ_DIR: SashimiSlayer
-  PROJ_NAME: Sashimi Slayer
-  BUILD_NAME_PREFIX: SashimiSlayer
+  PROJ_DIR: Starheart
+  PROJ_NAME: Star Heart
+  BUILD_NAME_PREFIX: StarHeart
   BUILD_DIR: build
   BUTLER_LINK: https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
-  ITCH_GAME_NAME: doublebrackets/sashimi-slayer
+  ITCH_GAME_NAME: doublebrackets/starheart
 
 on: 
   push:
@@ -20,9 +20,9 @@ on:
     # Only build when these are changed by the push
     # Actions doesn't support env. variables in this section...
       - '.github/**'
-      - 'SashimiSlayer/Assets/**'
-      - 'SashimiSlayer/Packages/**'
-      - 'SashimiSlayer/ProjectSettings/**'
+      - 'Starheart/Assets/**'
+      - 'Starheart/Packages/**'
+      - 'Starheart/ProjectSettings/**'
   workflow_dispatch:
       
 jobs:
@@ -31,7 +31,7 @@ jobs:
     strategy:
       matrix:
         targetPlatform:
-          # - WebGL
+          - WebGL
           - StandaloneWindows64
           - StandaloneOSX
           - StandaloneLinux64
