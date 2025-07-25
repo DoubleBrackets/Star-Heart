@@ -5198,7 +5198,7 @@ Animator:
   m_GameObject: {fileID: 2789957814572321676}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 4dea2fbe769537c499a92e3464cc1b53, type: 2}
+  m_Controller: {fileID: 9100000, guid: 62f1054600493ae4aaa480c527c8f28d, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -6355,10 +6355,13 @@ MonoBehaviour:
   _componentIndexCache: 0
   _addedNetworkObject: {fileID: 4252788108740507366}
   _networkObjectCache: {fileID: 4252788108740507366}
-  _spriteRenderer: {fileID: 2854875081800537686}
+  _animator: {fileID: 754027617433613360}
+  _animatorControllers:
+  - {fileID: 9100000, guid: 4dea2fbe769537c499a92e3464cc1b53, type: 2}
+  - {fileID: 9100000, guid: 62f1054600493ae4aaa480c527c8f28d, type: 2}
   _playerColors:
-  - {r: 0.4575472, g: 0.9567081, b: 1, a: 1}
-  - {r: 1, g: 0.4292453, b: 0.55607975, a: 1}
+  - {r: 0.46666667, g: 0.7019608, b: 0.99607843, a: 1}
+  - {r: 0.7254902, g: 0.46666667, b: 0.99607843, a: 1}
   _trailRenderer: {fileID: 8580976627334030960}
 --- !u!1 &6217402697934430483
 GameObject:

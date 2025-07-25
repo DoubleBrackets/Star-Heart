@@ -333,7 +333,10 @@ namespace Protag
             }
             else if (_state == ProtagControllerState.InSpace)
             {
-                AlignToUpVector(_rb.linearVelocity.normalized);
+                Vector2 velocity = _rb.linearVelocity;
+                AlignToUpVector(velocity.normalized);
+
+                horizontal = -Mathf.Sign(Vector2.SignedAngle(velocity, totalGravAccel));
 
                 if (gravityEffect.InPlanetGravity)
                 {

@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.25490198, g: 0.61960787, b: 0.8862745, a: 1}
+  m_Color: {r: 0.11372549, g: 0.81960785, b: 0.25490198, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -227,8 +227,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4293041729
-  m_fontColor: {r: 0.25516194, g: 0.6185656, b: 0.8867924, a: 1}
+    rgba: 4282503453
+  m_fontColor: {r: 0.11372549, g: 0.81960785, b: 0.25490198, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -337,7 +337,7 @@ MonoBehaviour:
     colour: {r: 0, g: 0, b: 0, a: 1}
   selected:
     sprite: {fileID: 21300000, guid: 997a4571b48144fd7be9c547b769c11d, type: 3}
-    colour: {r: 0.25490198, g: 0.61960787, b: 0.8862745, a: 1}
+    colour: {r: 0.112273075, g: 0.8207547, b: 0.2558216, a: 1}
   disabled:
     sprite: {fileID: 0}
     colour: {r: 0.5, g: 0.5, b: 0.5, a: 0.5019608}

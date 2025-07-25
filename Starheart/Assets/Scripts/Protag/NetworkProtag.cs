@@ -9,7 +9,10 @@ namespace Protag
     public class NetworkProtag : NetworkBehaviour
     {
         [SerializeField]
-        private SpriteRenderer _spriteRenderer;
+        private Animator _animator;
+
+        [SerializeField]
+        private List<RuntimeAnimatorController> _animatorControllers;
 
         [SerializeField]
         private List<Color> _playerColors;
@@ -43,7 +46,7 @@ namespace Protag
         {
             _playerNumber = reader.ReadInt32();
 
-            _spriteRenderer.color = _playerColors[_playerNumber];
+            _animator.runtimeAnimatorController = _animatorControllers[_playerNumber];
             if (_trailRenderer != null)
             {
                 _trailRenderer.startColor = _playerColors[_playerNumber];
