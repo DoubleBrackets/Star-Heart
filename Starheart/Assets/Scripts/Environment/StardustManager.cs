@@ -8,17 +8,30 @@ namespace Environment
 {
     public class StardustManager : NetworkBehaviour
     {
+        private static StardustManager _instance;
+
         [SerializeField]
         private TMP_Text _stardustCollectedText;
 
-        public static StardustManager Instance { get; private set; }
+        public static StardustManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = FindFirstObjectByType<StardustManager>();
+                }
+
+                return _instance;
+            }
+        }
 
         private readonly SyncVar<int> _stardustCollectedCount = new();
         private readonly SyncVar<int> _totalStardustCount = new();
 
         private void Awake()
         {
-            Instance = this;
+            _instance = this;
             _stardustCollectedCount.OnChange += UpdateText;
             _totalStardustCount.OnChange += UpdateText;
         }
@@ -36,6 +49,7 @@ namespace Environment
 
         public override void OnStartServer()
         {
+            _totalStardustCount.Value = FindObjectsByType<Stardust>(FindObjectsSortMode.None).Length;
             UpdateText(0, 0, false);
         }
 
@@ -47,7 +61,7 @@ namespace Environment
         [Server]
         public void RegisterStardust()
         {
-            _totalStardustCount.Value++;
+            // _totalStardustCount.Value++;
             BadLogger.LogDebug($"Stardust registered. Total count: {_totalStardustCount.Value}");
         }
 
