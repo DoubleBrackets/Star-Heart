@@ -42,8 +42,6 @@ namespace Dialog
             _networkCollision2D.OnExit += NetworkCollisionExit;
         }
 
-
-
         [Server]
         public void SetInDialog(bool inDialog)
         {
@@ -52,7 +50,7 @@ namespace Dialog
 
         private void NetworkCollisionEnter(Collider2D other)
         {
-            var protagDialogStarter = other.GetComponentInParent<ProtagDialogStarter>();
+            var protagDialogStarter = other.GetComponentInParent<ProtagDialogManager>();
 
             if (protagDialogStarter != null && protagDialogStarter.IsOwner)
             {
@@ -65,7 +63,7 @@ namespace Dialog
 
         private void NetworkCollisionExit(Collider2D other)
         {
-            var protagDialogStarter = other.GetComponentInParent<ProtagDialogStarter>();
+            var protagDialogStarter = other.GetComponentInParent<ProtagDialogManager>();
 
             if (protagDialogStarter != null && protagDialogStarter.IsOwner)
             {

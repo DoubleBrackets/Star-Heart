@@ -5,6 +5,7 @@ using FishNet.Transporting;
 using Gameplay;
 using SpacePhysics;
 using UnityEngine;
+using UnityEngine.Events;
 using Utils;
 
 namespace Protag
@@ -14,6 +15,13 @@ namespace Protag
     /// </summary>
     public class ProtagController : NetworkBehaviour
     {
+        public enum ProtagControllerState
+        {
+            InPlanet,
+            InSpace,
+            InDialog
+        }
+
         [Serializable]
         public struct MoveStats
         {
@@ -39,17 +47,23 @@ namespace Protag
             public bool Jump;
             public GravityManager.GravityEffect GravityEffect;
             public float Salty;
+            public bool InDialog;
 
-            public MovementData(float horizontalInput, bool jump, GravityManager.GravityEffect effect, float salty)
+            private uint _tick;
+
+            public MovementData(
+                float horizontalInput,
+                bool jump,
+                GravityManager.GravityEffect effect,
+                bool inDialog)
             {
                 HorizontalInput = horizontalInput;
                 Jump = jump;
                 GravityEffect = effect;
-                Salty = salty;
+                Salty = 1;
+                InDialog = inDialog;
                 _tick = 0;
             }
-
-            private uint _tick;
 
             public uint GetTick()
             {
@@ -69,15 +83,18 @@ namespace Protag
 
         private struct ReconcileData : IReconcileData
         {
-            public readonly PredictionRigidbody2D Rigidbody2DState;
             public float HorizontalInput;
+            public ProtagControllerState State;
+            public readonly PredictionRigidbody2D Rigidbody2DState;
 
             private uint _tick;
 
-            public ReconcileData(PredictionRigidbody2D rigidbody2DState, float horizontalInput)
+            public ReconcileData(PredictionRigidbody2D rigidbody2DState, ProtagControllerState state,
+                float horizontalInput)
             {
                 Rigidbody2DState = rigidbody2DState;
                 HorizontalInput = horizontalInput;
+                State = state;
                 _tick = 0;
             }
 
@@ -95,6 +112,9 @@ namespace Protag
             {
             }
         }
+
+        private static readonly int SpeedAnimHash = Animator.StringToHash("Speed");
+        private static readonly int AirAnimHash = Animator.StringToHash("Air");
 
         [Header("Depends")]
 
@@ -121,14 +141,27 @@ namespace Protag
         [SerializeField]
         private bool _collideWithPlayers;
 
+        [Header("State Transitions")]
+
+        [SerializeField]
+        private UnityEvent _onEnterSpace;
+
+        [SerializeField]
+        private UnityEvent _onExitSpace;
+
+        public bool InDialog { get; set; }
+
         public event Action OnJump;
 
+        // Inputs
         private float _horizontalInput;
         private bool _jumpInput;
 
         private PredictionRigidbody2D _predictionRigidbody;
 
         private bool _frozen;
+
+        private ProtagControllerState _state = ProtagControllerState.InPlanet;
 
         // For debug
         private Vector2 _gravityAccel;
@@ -200,7 +233,7 @@ namespace Protag
                 // The heartstar doesn't always reconcile/replicate, so calculating this inside replicate causes issues
                 // Calculating it out here works fine as long as the heartstar gravity physics never needs to correct (which it shouldn't)
                 GravityManager.GravityEffect gravityEffect = GravityManager.Instance.CalculateGravity(_rb.position);
-                var data = new MovementData(_horizontalInput, _jumpInput, gravityEffect, 1);
+                var data = new MovementData(_horizontalInput, _jumpInput, gravityEffect, InDialog);
                 Replicate(data);
             }
             else
@@ -226,8 +259,6 @@ namespace Protag
                 $"{data.GravityEffect.TotalAcceleration} {_rb.position} {_rb.linearVelocity} {data.Jump} {name}");*/
             var delta = (float)TimeManager.TickDelta;
 
-            float horizontal = data.HorizontalInput;
-
             bool canPause = !IsOwner && !IsServerStarted;
 
             if (state.IsFuture())
@@ -236,148 +267,219 @@ namespace Protag
                 {
                     NetworkObject.RigidbodyPauser.Pause();
                 }
+
+                return;
+            }
+
+            // Cache the horizontal input in case we have non-created ticks
+            float horizontal = data.HorizontalInput;
+            if (state.ContainsCreated())
+            {
+                if (IsServerStarted || !IsOwner)
+                {
+                    _horizontalInput = horizontal;
+                }
             }
             else
             {
-                // Unpause for created ticks
-                if (canPause)
+                horizontal = _horizontalInput;
+            }
+
+            // Unpause for created ticks
+            if (canPause)
+            {
+                NetworkObject.RigidbodyPauser.Unpause();
+            }
+
+            // Gravity calculations
+            GravityManager.GravityEffect gravityEffect = data.GravityEffect;
+            Vector2 totalGravAccel = gravityEffect.TotalAcceleration;
+            Vector2 planetGravAccel = gravityEffect.PlanetAcceleration;
+            Vector2 planetGravityUp = -planetGravAccel.normalized;
+
+            _gravityAccel = totalGravAccel;
+
+            // Ground & normal
+            RaycastHit2D groundHit = UpdateGroundCheck();
+            bool isGrounded = groundHit.collider != null;
+            Vector2 groundNormal = isGrounded ? groundHit.normal : planetGravityUp;
+
+            if (_state == ProtagControllerState.InPlanet)
+            {
+                AlignToUpVector(planetGravityUp);
+
+                HorizontalMovement(horizontal, groundNormal);
+
+                // In planet jumping
+                if (isGrounded && data.Jump)
                 {
-                    NetworkObject.RigidbodyPauser.Unpause();
-                }
+                    _predictionRigidbody.AddForce(planetGravityUp * _moveStats.JumpVelocity * _rb.mass,
+                        ForceMode2D.Impulse);
 
-                // Gravity calculations
-                GravityManager.GravityEffect gravityEffect = data.GravityEffect;
-                Vector2 totalGravAccel = gravityEffect.TotalAcceleration;
-                Vector2 planetGravAccel = gravityEffect.PlanetAcceleration;
-                Vector2 planetGravityUp = -planetGravAccel.normalized;
-
-                _gravityAccel = totalGravAccel;
-
-                // Align camera only on planet
-                if (IsOwner)
-                {
-                    _protagCamera.SetAlignRotation(gravityEffect.InPlanetGravity);
-                }
-
-                if (gravityEffect.InGravity)
-                {
-                    // Align to velocity in space, to planet gravity otherwise
-                    Vector2 targetUpVector = gravityEffect.InPlanetGravity
-                        ? planetGravityUp
-                        : _rb.linearVelocity.normalized;
-
-                    Quaternion targetRot = Quaternion.FromToRotation(Vector2.up, targetUpVector);
-                    Quaternion currentRot = _bodyAnchor.rotation;
-
-                    // Use lerp first then linear to get smooth rotations for sudden flips while still sticking on incremental rotations
-                    float t = 1 - Mathf.Pow(0.01f, delta * _moveStats.AlignLerpExp);
-                    currentRot = Quaternion.Lerp(
-                        currentRot,
-                        targetRot,
-                        t);
-
-                    currentRot = Quaternion.RotateTowards(
-                        currentRot,
-                        targetRot,
-                        _moveStats.AlignAngleVelocity * delta);
-
-                    _bodyAnchor.rotation = currentRot;
-                }
-
-                // Ground & normal
-                RaycastHit2D groundHit = UpdateGroundCheck();
-                bool isGrounded = groundHit.collider != null;
-                Vector2 groundNormal = isGrounded ? groundHit.normal : planetGravityUp;
-                Vector2 groundTangent = Vector2.Perpendicular(groundNormal);
-
-                if (state.ContainsCreated())
-                {
-                    // Cache the horizontal input in case we have non-created ticks
-                    if (IsServerStarted || !IsOwner)
+                    if (state.IsTickedCreated())
                     {
-                        _horizontalInput = horizontal;
+                        OnJump?.Invoke();
                     }
+                }
 
-                    Debug.DrawLine(_rb.position, _rb.position + planetGravityUp * 0.1f, Color.green, 2f);
-                }
-                else
+                if (!gravityEffect.InPlanetGravity)
                 {
-                    // Use the cached input (predicting)
-                    horizontal = _horizontalInput;
-                    Debug.DrawLine(_rb.position, _rb.position + planetGravityUp * 0.1f, Color.red, 2f);
+                    EnterSpaceState();
                 }
+                else if (data.InDialog)
+                {
+                    EnterDialogState();
+                }
+            }
+            else if (_state == ProtagControllerState.InSpace)
+            {
+                AlignToUpVector(_rb.linearVelocity.normalized);
 
                 if (gravityEffect.InPlanetGravity)
                 {
-                    Vector2 currentHorizontal = _rb.linearVelocity.ProjectOnPlane(groundNormal);
-                    Vector2 desiredHorizontal = -horizontal * _moveStats.MoveSpeed * groundTangent;
-                    float accel = isGrounded
-                        ? _moveStats.GroundAccel
-                        : _moveStats.AirMoveAccel;
-
-                    Vector2 newHorizontal =
-                        Vector2.MoveTowards(currentHorizontal, desiredHorizontal, accel * delta);
-
-                    Vector2 moveDelta = newHorizontal - currentHorizontal;
-                    Vector2 newVelocity = _rb.linearVelocity + moveDelta;
-
-                    // Horizontal movement
-                    _predictionRigidbody.Velocity(newVelocity);
+                    ExitSpaceState();
+                    EnterPlanetState();
                 }
-
-                if (_rb.linearVelocity.magnitude > _moveStats.MaxPossibleSpeed)
+                else if (data.InDialog)
                 {
-                    // Clamp the velocity to the max possible speed
-                    _predictionRigidbody.Velocity(
-                        _rb.linearVelocity.normalized * _moveStats.MaxPossibleSpeed);
+                    ExitSpaceState();
+                    EnterDialogState();
                 }
+            }
+            else if (_state == ProtagControllerState.InDialog)
+            {
+                HorizontalMovement(0, groundNormal);
+                AlignToUpVector(planetGravityUp);
 
-                if (isGrounded)
+                if (!data.InDialog)
                 {
-                    if (data.Jump)
+                    if (gravityEffect.InPlanetGravity)
                     {
-                        _predictionRigidbody.AddForce(planetGravityUp * _moveStats.JumpVelocity * _rb.mass,
-                            ForceMode2D.Impulse);
-
-                        if (state.IsTickedCreated())
-                        {
-                            OnJump?.Invoke();
-                        }
+                        EnterPlanetState();
+                    }
+                    else
+                    {
+                        EnterSpaceState();
                     }
                 }
+            }
 
-                bool velIsDown = Vector2.Dot(_rb.linearVelocity, planetGravityUp) <= 0;
-                bool applyGravity = !(isGrounded && horizontal == 0 && velIsDown);
+            void EnterSpaceState()
+            {
+                _state = ProtagControllerState.InSpace;
+                _protagCamera.SetAlignRotation(false);
 
-                if (applyGravity)
+                if (!state.ContainsReplayed())
                 {
-                    _predictionRigidbody.AddForce(totalGravAccel * delta * _rb.mass,
-                        ForceMode2D.Impulse);
-                    // BadLogger.LogTrace(totalGravAccel.ToString());
+                    _onEnterSpace.Invoke();
                 }
+            }
 
-                _predictionRigidbody.Simulate();
-
-                if (state.ContainsCreated())
+            void ExitSpaceState()
+            {
+                if (!state.ContainsReplayed())
                 {
-                    ReplicateVisuals((int)horizontal, isGrounded);
+                    _onExitSpace.Invoke();
                 }
+            }
+
+            void EnterPlanetState()
+            {
+                _state = ProtagControllerState.InPlanet;
+                _protagCamera.SetAlignRotation(true);
+            }
+
+            void EnterDialogState()
+            {
+                _state = ProtagControllerState.InDialog;
+                _protagCamera.SetAlignRotation(true);
+            }
+
+            void AlignToUpVector(Vector2 targetUp)
+            {
+                Quaternion targetRot = Quaternion.FromToRotation(Vector2.up, targetUp);
+                Quaternion currentRot = _bodyAnchor.rotation;
+
+                // Use lerp first then linear to get smooth rotations for sudden flips while still sticking on incremental rotations
+                float t = 1 - Mathf.Pow(0.01f, delta * _moveStats.AlignLerpExp);
+                currentRot = Quaternion.Lerp(
+                    currentRot,
+                    targetRot,
+                    t);
+
+                currentRot = Quaternion.RotateTowards(
+                    currentRot,
+                    targetRot,
+                    _moveStats.AlignAngleVelocity * delta);
+
+                _bodyAnchor.rotation = currentRot;
+            }
+
+            void HorizontalMovement(float horizontalInput, Vector2 normal)
+            {
+                // In planet horizontal movement
+                Vector2 currentHorizontal = _rb.linearVelocity.ProjectOnPlane(normal);
+                Vector2 groundTangent = Vector2.Perpendicular(normal);
+                Vector2 desiredHorizontal = -horizontalInput * _moveStats.MoveSpeed * groundTangent;
+                float accel = isGrounded
+                    ? _moveStats.GroundAccel
+                    : _moveStats.AirMoveAccel;
+
+                Vector2 newHorizontal =
+                    Vector2.MoveTowards(currentHorizontal, desiredHorizontal, accel * delta);
+
+                Vector2 moveDelta = newHorizontal - currentHorizontal;
+                Vector2 newVelocity = _rb.linearVelocity + moveDelta;
+
+                _predictionRigidbody.Velocity(newVelocity);
+            }
+
+            // Clamp the velocity to the max possible speed
+            if (_rb.linearVelocity.magnitude > _moveStats.MaxPossibleSpeed)
+            {
+                _predictionRigidbody.Velocity(
+                    _rb.linearVelocity.normalized * _moveStats.MaxPossibleSpeed);
+            }
+
+            bool velIsDown = Vector2.Dot(_rb.linearVelocity, planetGravityUp) <= 0;
+            bool applyGravity = !(isGrounded && horizontal == 0 && velIsDown);
+
+            if (applyGravity)
+            {
+                _predictionRigidbody.AddForce(totalGravAccel * delta * _rb.mass,
+                    ForceMode2D.Impulse);
+                // BadLogger.LogTrace(totalGravAccel.ToString());
+            }
+
+            _predictionRigidbody.Simulate();
+
+            if (state.ContainsCreated())
+            {
+                ReplicateVisuals((int)horizontal, isGrounded);
             }
         }
 
         private void ReplicateVisuals(int horizontalInput, bool isGrounded)
         {
-            if (horizontalInput > 0)
+            if (_state != ProtagControllerState.InDialog)
             {
-                _spriteRenderer.flipX = false;
+                if (horizontalInput > 0)
+                {
+                    _spriteRenderer.flipX = false;
+                }
+                else if (horizontalInput < 0)
+                {
+                    _spriteRenderer.flipX = true;
+                }
+
+                _animator.SetFloat(SpeedAnimHash, _moveStats.MoveSpeed * Mathf.Abs(horizontalInput));
             }
-            else if (horizontalInput < 0)
+            else
             {
-                _spriteRenderer.flipX = true;
+                _animator.SetFloat(SpeedAnimHash, 0);
             }
 
-            _animator.SetFloat("Speed", _moveStats.MoveSpeed * Mathf.Abs(horizontalInput));
-            _animator.SetBool("Air", !isGrounded);
+            _animator.SetBool(AirAnimHash, !isGrounded);
         }
 
         public override void CreateReconcile()
@@ -387,7 +489,7 @@ namespace Protag
                 return;
             }
 
-            var data = new ReconcileData(_predictionRigidbody, _horizontalInput);
+            var data = new ReconcileData(_predictionRigidbody, _state, _horizontalInput);
             Reconcile(data);
         }
 
@@ -396,6 +498,7 @@ namespace Protag
         {
             _predictionRigidbody.Reconcile(data.Rigidbody2DState);
             ReplicateVisuals((int)data.HorizontalInput, true);
+            _state = data.State;
             // BadLogger.LogTrace($"A {data.GetTick()} {name}");
         }
 

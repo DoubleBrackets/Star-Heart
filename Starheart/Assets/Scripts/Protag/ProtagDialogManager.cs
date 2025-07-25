@@ -8,7 +8,7 @@ using Yarn.Unity;
 
 namespace Protag
 {
-    public class ProtagDialogStarter : NetworkBehaviour
+    public class ProtagDialogManager : NetworkBehaviour
     {
         [SerializeField]
         private GameObject _talkPopup;
@@ -18,6 +18,12 @@ namespace Protag
 
         [SerializeField]
         private DialogueRunner _dialogueRunner;
+
+        [SerializeField]
+        private ProtagController _protagController;
+
+        [SerializeField]
+        private HeartStarThrower _heartStarThrower;
 
         private readonly SyncVar<bool> _inDialog = new();
 
@@ -74,6 +80,12 @@ namespace Protag
         private void HandleInDialogChanged(bool prev, bool next, bool asserver)
         {
             UpdateTalkPopup();
+
+            if (IsOwner)
+            {
+                _protagController.InDialog = next;
+                _heartStarThrower.InputEnabled = !next;
+            }
         }
 
         [Client]

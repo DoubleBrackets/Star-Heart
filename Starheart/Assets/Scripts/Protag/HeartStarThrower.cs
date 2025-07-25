@@ -22,11 +22,13 @@ namespace Protag
         public Vector2 ThrowPoint => _throwPoint.position;
         private bool SinglePlayerDebug => _singlePlayerDebug && Application.isEditor;
 
+        public bool InputEnabled { get; set; } = true;
+
         private bool _hasHeartStar;
 
         private void Update()
         {
-            if (IsOwner && Input.GetMouseButtonDown(0))
+            if (IsOwner && Input.GetMouseButtonDown(0) && InputEnabled)
             {
                 if (_hasHeartStar)
                 {

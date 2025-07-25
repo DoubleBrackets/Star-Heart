@@ -94,7 +94,6 @@ namespace Dialog
         [ServerRpc(RequireOwnership = false)]
         private void SetVisible_ServerRpc(bool value)
         {
-            Debug.Log("SERVER SET VISIBLE" + value);
             _isVisible.Value = value;
         }
     }
