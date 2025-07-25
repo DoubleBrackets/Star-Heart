@@ -562,7 +562,6 @@ Transform:
   - {fileID: 684245715}
   - {fileID: 1177836913}
   - {fileID: 375358274}
-  - {fileID: 714412343}
   - {fileID: 1200387258}
   - {fileID: 410575436}
   - {fileID: 1592868806}
@@ -1009,6 +1008,69 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 85541434785763168, guid: 3d9b89f8776270f45897510f5189e02e, type: 3}
   m_PrefabInstance: {fileID: 586899245}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &652368775
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 652368776}
+  - component: {fileID: 652368777}
+  m_Layer: 0
+  m_Name: BGM
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &652368776
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652368775}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &652368777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 652368775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 831954768
+      Data2: 1123588736
+      Data3: 1664888738
+      Data4: 1109976173
+    Path: event:/BGMusic
+  Event: 
+  EventPlayTrigger: 1
+  EventStopTrigger: 2
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1001 &684245714
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1285,8 +1347,8 @@ SpriteRenderer:
   m_SortingLayerID: 1739127163
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: a79815923e17e614ab4165630c31bc6e, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.003921569}
+  m_Sprite: {fileID: 21300000, guid: ca1b4959296250f41991c7a701cd5016, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1305,11 +1367,11 @@ Transform:
   m_GameObject: {fileID: 714412341}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: 0, z: 10}
+  m_LocalScale: {x: 1.54, y: 1.54, z: 0.77}
+  m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 275459976}
+  m_Father: {fileID: 1507288179}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &842587231
 GameObject:
@@ -2108,7 +2170,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0.0772076, b: 0.1509434, a: 1}
+  m_BackGroundColor: {r: 0, g: 0.034756687, b: 0.066037714, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -2161,7 +2223,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 714412343}
   m_Father: {fileID: 1380630788}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1507288180
@@ -3366,3 +3429,4 @@ SceneRoots:
   - {fileID: 147716482}
   - {fileID: 275459976}
   - {fileID: 6721855325750025547}
+  - {fileID: 652368776}

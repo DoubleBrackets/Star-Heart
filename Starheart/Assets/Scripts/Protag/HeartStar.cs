@@ -216,7 +216,7 @@ namespace Protag
 
             _heartSpriteRenderer.color = _heartColors[_sourceProtagNumber];
 
-            float angle = Vector2.SignedAngle(Vector2.right, _targetPosition - throwPos);
+            float angle = Vector2.SignedAngle(Vector2.up, _targetPosition - throwPos);
             _visualBody.rotation = Quaternion.Euler(0, 0, angle);
         }
 
@@ -341,6 +341,9 @@ namespace Protag
                         Vector2 newPosition = Vector2.Lerp(currentPos, desiredPosition, t);
                         newPosition = Vector2.MoveTowards(newPosition, desiredPosition, _retrieveSpeed * delta);
                         _visualBody.position = newPosition;
+
+                        float angle = Vector2.SignedAngle(Vector2.up, desiredPosition - currentPos);
+                        _visualBody.rotation = Quaternion.Euler(0, 0, angle);
                     }
                 }
             }

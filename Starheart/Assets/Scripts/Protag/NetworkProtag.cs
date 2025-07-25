@@ -14,6 +14,9 @@ namespace Protag
         [SerializeField]
         private List<Color> _playerColors;
 
+        [SerializeField]
+        private TrailRenderer _trailRenderer;
+
         public int PlayerNumber => _playerNumber;
 
         /// <summary>
@@ -39,6 +42,11 @@ namespace Protag
             _playerNumber = reader.ReadInt32();
 
             _spriteRenderer.color = _playerColors[_playerNumber];
+            if (_trailRenderer != null)
+            {
+                _trailRenderer.startColor = _playerColors[_playerNumber];
+                _trailRenderer.endColor = _playerColors[_playerNumber];
+            }
         }
 
         public override void OnStartNetwork()

@@ -350,8 +350,8 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 3631923330720231315}
   _networkObjectCache: {fileID: 3631923330720231315}
   _radiusLineRenderer: {fileID: 1040017477848418764}
-  _radius: 6
-  _gravityAcceleration: 12
+  _radius: 7
+  _gravityAcceleration: 11
   _gravityType: 0
 --- !u!114 &3631923330720231315
 MonoBehaviour:

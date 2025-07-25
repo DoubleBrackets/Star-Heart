@@ -70,7 +70,8 @@ namespace Protag
             }
 
             Vector2 throwPos = ThrowPoint;
-            HeartStar heartStar = Instantiate(_heartStarPrefab, throwPos, Quaternion.identity);
+            float angle = Vector2.SignedAngle(Vector2.up, targetPos - throwPos);
+            HeartStar heartStar = Instantiate(_heartStarPrefab, throwPos, Quaternion.Euler(0, 0, angle));
             heartStar.Initialize(targetPos, throwPos, _networkProtag.PlayerNumber);
 
             Spawn(heartStar.NetworkObject, LocalConnection);
