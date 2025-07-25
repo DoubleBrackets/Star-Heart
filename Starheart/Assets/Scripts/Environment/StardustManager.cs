@@ -19,23 +19,19 @@ namespace Environment
         private void Awake()
         {
             Instance = this;
-        }
-
-        public override void OnStartNetwork()
-        {
             _stardustCollectedCount.OnChange += UpdateText;
             _totalStardustCount.OnChange += UpdateText;
+        }
+
+        public void OnDestroy()
+        {
+            _stardustCollectedCount.OnChange -= UpdateText;
+            _totalStardustCount.OnChange -= UpdateText;
         }
 
         public override void OnStartServer()
         {
             UpdateText(0, 0, false);
-        }
-
-        public override void OnStopNetwork()
-        {
-            _stardustCollectedCount.OnChange -= UpdateText;
-            _totalStardustCount.OnChange -= UpdateText;
         }
 
         public override void OnStartClient()
