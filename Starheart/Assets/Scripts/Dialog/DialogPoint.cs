@@ -42,15 +42,7 @@ namespace Dialog
             _networkCollision2D.OnExit += NetworkCollisionExit;
         }
 
-        public override void OnStartServer()
-        {
-            _linePresenter.OnInDialogChanged += SetInDialog;
-        }
 
-        public override void OnStopServer()
-        {
-            _linePresenter.OnInDialogChanged -= SetInDialog;
-        }
 
         [Server]
         public void SetInDialog(bool inDialog)

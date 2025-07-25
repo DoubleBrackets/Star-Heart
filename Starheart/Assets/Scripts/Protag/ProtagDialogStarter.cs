@@ -140,6 +140,7 @@ namespace Protag
             {
                 BadLogger.LogInfo($"Ending dialog with {dialogPoint.name} on server");
                 _inDialog.Value = false;
+                dialogPoint.SetInDialog(false);
                 _dialogueRunner.Stop();
             }
         }

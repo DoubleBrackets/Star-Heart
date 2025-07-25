@@ -1,4 +1,3 @@
-using System;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using TMPro;
@@ -18,22 +17,34 @@ namespace Dialog
         [SerializeField]
         private TMP_Text _speakerText;
 
-        public event Action<bool> OnInDialogChanged;
-
         private readonly SyncVar<string> _currentLine = new();
         private readonly SyncVar<string> _currentSpeaker = new();
+
+        private readonly SyncVar<bool> _isVisible = new();
 
         private void Awake()
         {
             SetDialogBubbleLocal(false);
             _currentLine.OnChange += OnLineChanged;
             _currentSpeaker.OnChange += OnSpeakerChanged;
+            _isVisible.OnChange += HandleVisibilityChanged;
         }
 
         private void OnDestroy()
         {
             _currentLine.OnChange -= OnLineChanged;
             _currentSpeaker.OnChange -= OnSpeakerChanged;
+            _isVisible.OnChange -= HandleVisibilityChanged;
+        }
+
+        private void HandleVisibilityChanged(bool prev, bool next, bool asserver)
+        {
+            if (_canvasGroup != null)
+            {
+                _canvasGroup.alpha = next ? 1 : 0;
+                _canvasGroup.interactable = next;
+                _canvasGroup.blocksRaycasts = next;
+            }
         }
 
         private void OnLineChanged(string prev, string next, bool asserver)
@@ -70,11 +81,7 @@ namespace Dialog
 
         public void SetDialogBubbleLocal(bool visible)
         {
-            if (_canvasGroup != null)
-            {
-                _canvasGroup.alpha = visible ? 1 : 0;
-                _canvasGroup.interactable = visible;
-            }
+            HandleVisibilityChanged(false, visible, false);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -87,18 +94,8 @@ namespace Dialog
         [ServerRpc(RequireOwnership = false)]
         private void SetVisible_ServerRpc(bool value)
         {
-            OnInDialogChanged?.Invoke(value);
-            SetVisible_ObserversRpc(value);
-        }
-
-        [ObserversRpc(RunLocally = true, BufferLast = true)]
-        private void SetVisible_ObserversRpc(bool visible)
-        {
-            if (_canvasGroup != null)
-            {
-                _canvasGroup.alpha = visible ? 1 : 0;
-                _canvasGroup.interactable = visible;
-            }
+            Debug.Log("SERVER SET VISIBLE" + value);
+            _isVisible.Value = value;
         }
     }
 }

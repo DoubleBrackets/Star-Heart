@@ -47,6 +47,9 @@ TagManager:
   - name: Terrain
     uniqueID: 1867299575
     locked: 0
+  - name: Dialog
+    uniqueID: 1366770571
+    locked: 0
   - name: NPC
     uniqueID: 423355977
     locked: 0
