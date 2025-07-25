@@ -16,7 +16,11 @@ namespace Protag
         [SerializeField]
         private NetworkProtag _networkProtag;
 
+        [SerializeField]
+        private bool _singlePlayerDebug;
+
         public Vector2 ThrowPoint => _throwPoint.position;
+        private bool SinglePlayerDebug => _singlePlayerDebug && Application.isEditor;
 
         private bool _hasHeartStar;
 
@@ -41,6 +45,11 @@ namespace Protag
         {
             // Only player 2 starts with the star
             _hasHeartStar = _networkProtag.PlayerNumber == 1;
+
+            if (SinglePlayerDebug)
+            {
+                _hasHeartStar = true;
+            }
         }
 
         private void OnHeartStarChanged(HeartStar prev, HeartStar next, bool asserver)
@@ -104,9 +113,9 @@ namespace Protag
             BadLogger.LogDebug(
                 $"Retrieving heartstar from p {sourceProtag} as {protagNumber}");
 
-            if (sourceProtag == protagNumber)
+            if (sourceProtag == protagNumber && !SinglePlayerDebug)
             {
-                // return;
+                return;
             }
 
             heartStar.Retrieve(this);

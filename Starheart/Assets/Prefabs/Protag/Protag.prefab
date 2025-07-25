@@ -541,6 +541,7 @@ MonoBehaviour:
   _heartStarPrefab: {fileID: 8184595699952606269, guid: 95c6f7495095c6f40895694ce7fd30fc, type: 3}
   _throwPoint: {fileID: 3246211844271708730}
   _networkProtag: {fileID: 8172236358443766988}
+  _singlePlayerDebug: 1
 --- !u!1 &4020630549380346872
 GameObject:
   m_ObjectHideFlags: 0
