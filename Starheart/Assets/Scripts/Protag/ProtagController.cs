@@ -1,6 +1,4 @@
 using System;
-using DebugTools.Logging;
-using FishNet.Component.Prediction;
 using FishNet.Object;
 using FishNet.Object.Prediction;
 using FishNet.Transporting;
@@ -223,9 +221,9 @@ namespace Protag
             ReplicateState state = ReplicateState.Invalid,
             Channel channel = Channel.Unreliable)
         {
-            BadLogger.LogTrace(
+            /*BadLogger.LogTrace(
                 $"B {data.GetTick()} {state.ContainsTicked()} {state.ContainsReplayed()} {state.ContainsCreated()} " +
-                $"{data.GravityEffect.TotalAcceleration} {_rb.position} {_rb.linearVelocity} {data.Jump} {name}");
+                $"{data.GravityEffect.TotalAcceleration} {_rb.position} {_rb.linearVelocity} {data.Jump} {name}");*/
             var delta = (float)TimeManager.TickDelta;
 
             float horizontal = data.HorizontalInput;
@@ -355,7 +353,7 @@ namespace Protag
                 {
                     _predictionRigidbody.AddForce(totalGravAccel * delta * _rb.mass,
                         ForceMode2D.Impulse);
-                    BadLogger.LogTrace(totalGravAccel.ToString());
+                    // BadLogger.LogTrace(totalGravAccel.ToString());
                 }
 
                 _predictionRigidbody.Simulate();
@@ -398,7 +396,7 @@ namespace Protag
         {
             _predictionRigidbody.Reconcile(data.Rigidbody2DState);
             ReplicateVisuals((int)data.HorizontalInput, true);
-            BadLogger.LogTrace($"A {data.GetTick()} {name}");
+            // BadLogger.LogTrace($"A {data.GetTick()} {name}");
         }
 
         private RaycastHit2D UpdateGroundCheck()
