@@ -121,8 +121,6 @@ namespace Protag
                 SetHasStarHeart_RPC(true);
             }
 
-            _retrieveIndicator.startColor = _networkProtag.PlayerColor;
-            _retrieveIndicator.endColor = _networkProtag.PlayerColor;
             _retrieveIndicator.positionCount = 2;
         }
 

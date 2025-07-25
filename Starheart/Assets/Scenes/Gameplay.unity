@@ -561,7 +561,6 @@ Transform:
   - {fileID: 1348620457}
   - {fileID: 684245715}
   - {fileID: 1177836913}
-  - {fileID: 375358274}
   - {fileID: 1200387258}
   - {fileID: 410575436}
   - {fileID: 1592868806}
@@ -803,11 +802,11 @@ Transform:
   m_GameObject: {fileID: 375358273}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.03, y: 0.14, z: 0}
+  m_LocalPosition: {x: -0.75, y: -0.52, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 275459976}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &410575436 stripped
 Transform:
@@ -946,6 +945,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 85541434785763168, guid: 3d9b89f8776270f45897510f5189e02e, type: 3}
   m_PrefabInstance: {fileID: 533651612}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &546011992
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 546011993}
+  m_Layer: 0
+  m_Name: SpawnPos (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &546011993
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 546011992}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2.03, y: -0.85, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &586899245
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1903,7 +1933,9 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 1375088848}
   _networkObjectCache: {fileID: 0}
   _networkPrefab: {fileID: 4252788108740507366, guid: 3826462c683615847af123d4573a0fc0, type: 3}
-  _spawnPos: {fileID: 375358274}
+  _spawnPos:
+  - {fileID: 375358274}
+  - {fileID: 546011993}
   _spawnOnlyPlayer2: 0
 --- !u!1 &1380630787
 GameObject:
@@ -3432,6 +3464,8 @@ SceneRoots:
   m_Roots:
   - {fileID: 236839468}
   - {fileID: 1375088847}
+  - {fileID: 375358274}
+  - {fileID: 546011993}
   - {fileID: 1435420137}
   - {fileID: 1826305982}
   - {fileID: 2063477259}

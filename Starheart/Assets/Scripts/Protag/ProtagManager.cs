@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DebugTools.Logging;
 using FishNet.Connection;
 using FishNet.Object;
@@ -18,7 +19,7 @@ namespace Protag
         private NetworkObject _networkPrefab;
 
         [SerializeField]
-        private Transform _spawnPos;
+        private List<Transform> _spawnPos;
 
         [SerializeField]
         private bool _spawnOnlyPlayer2;
@@ -56,12 +57,12 @@ namespace Protag
 
                 if (!_spawnOnlyPlayer2)
                 {
-                    SpawnPlayer(LocalConnection, _spawnPos.position);
+                    SpawnPlayer(LocalConnection, _spawnPos[0].position);
                 }
             }
             else
             {
-                SpawnPlayer(LocalConnection, _spawnPos.position);
+                SpawnPlayer(LocalConnection, _spawnPos[1].position);
             }
         }
 

@@ -10052,8 +10052,8 @@ MonoBehaviour:
   _visualBody: {fileID: 7906935177199953087}
   _heartSpriteRenderer: {fileID: 5854288252822589045}
   _heartColors:
-  - {r: 0.46666667, g: 0.7019608, b: 0.99607843, a: 1}
   - {r: 0.7254902, g: 0.46666667, b: 0.99607843, a: 1}
+  - {r: 0.46666667, g: 0.7019608, b: 0.99607843, a: 1}
   OnEnterIdle:
     m_PersistentCalls:
       m_Calls:

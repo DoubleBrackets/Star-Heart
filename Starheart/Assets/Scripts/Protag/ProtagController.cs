@@ -460,6 +460,8 @@ namespace Protag
             {
                 ReplicateVisuals((int)horizontal, isGrounded);
             }
+
+            _protagCamera.SetCamera(_state);
         }
 
         private void ReplicateVisuals(int horizontalInput, bool isGrounded)
