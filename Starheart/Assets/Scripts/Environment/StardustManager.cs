@@ -23,6 +23,11 @@ namespace Environment
             _totalStardustCount.OnChange += UpdateText;
         }
 
+        private void Update()
+        {
+            _stardustCollectedText.text = $"{_stardustCollectedCount.Value} / {_totalStardustCount.Value}";
+        }
+
         public void OnDestroy()
         {
             _stardustCollectedCount.OnChange -= UpdateText;

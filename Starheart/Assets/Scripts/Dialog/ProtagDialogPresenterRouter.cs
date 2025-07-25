@@ -11,7 +11,7 @@ namespace Dialog
     /// </summary>
     public class ProtagDialogPresenterRouter : DialoguePresenterBase
     {
-        private const string ProtagCharacterName = "Protag";
+        private const string ProtagCharacterName = "P";
 
         [SerializeField]
         private NetworkedLinePresenter _protagLinePresenter;

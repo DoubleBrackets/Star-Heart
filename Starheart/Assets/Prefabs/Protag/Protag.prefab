@@ -5462,7 +5462,7 @@ MonoBehaviour:
     CustomLookAtTarget: 0
   Lens:
     FieldOfView: 60
-    OrthographicSize: 7
+    OrthographicSize: 6
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -5563,7 +5563,7 @@ MonoBehaviour:
   _heartStarPrefab: {fileID: 8184595699952606269, guid: 95c6f7495095c6f40895694ce7fd30fc, type: 3}
   _throwPoint: {fileID: 3246211844271708730}
   _networkProtag: {fileID: 8172236358443766988}
-  _singlePlayerDebug: 0
+  _singlePlayerDebug: 1
   _hasHeartstarIndicator: {fileID: 5124816046650192494}
   _retrieveIndicator: {fileID: 3588437650769402012}
   _length: 5
@@ -11710,7 +11710,7 @@ MonoBehaviour:
   _addedNetworkObject: {fileID: 4252788108740507366}
   _networkObjectCache: {fileID: 0}
   _cinemachineCamera: {fileID: 6989218341156835406}
-  _planetFov: 6.5
+  _planetFov: 6
   _spaceFov: 9
   _fovLerpExp: 0.75
   _rotateWithFollowTarget: {fileID: 8970023075175050090}

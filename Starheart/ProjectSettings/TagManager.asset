@@ -47,11 +47,11 @@ TagManager:
   - name: Terrain
     uniqueID: 1867299575
     locked: 0
-  - name: Dialog
-    uniqueID: 1366770571
-    locked: 0
   - name: NPC
     uniqueID: 423355977
+    locked: 0
+  - name: Dialog
+    uniqueID: 1366770571
     locked: 0
   - name: Protag
     uniqueID: 4196704753
@@ -61,6 +61,9 @@ TagManager:
     locked: 0
   - name: VFX
     uniqueID: 3881162635
+    locked: 0
+  - name: Foreground
+    uniqueID: 4241868989
     locked: 0
   m_RenderingLayers:
   - Default
