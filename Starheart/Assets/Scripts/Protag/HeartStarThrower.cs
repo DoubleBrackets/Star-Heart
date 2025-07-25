@@ -1,7 +1,8 @@
 using DebugTools.Logging;
-using FishNet.Connection;
 using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Protag
 {
@@ -19,18 +20,44 @@ namespace Protag
         [SerializeField]
         private bool _singlePlayerDebug;
 
+        [Header("Indicators")]
+
+        [SerializeField]
+        private GameObject _hasHeartstarIndicator;
+
+        [SerializeField]
+        private LineRenderer _retrieveIndicator;
+
+        [SerializeField]
+        private float _length;
+
+        [Header("Events")]
+
+        [SerializeField]
+        private UnityEvent _onThrowHeartStar;
+
+        [SerializeField]
+        private UnityEvent _onRetrieveHeartStar;
+
         public Vector2 ThrowPoint => _throwPoint.position;
         private bool SinglePlayerDebug => _singlePlayerDebug && Application.isEditor;
 
         public bool InputEnabled { get; set; } = true;
+        private readonly SyncVar<bool> _hasHeartStar = new(false);
 
-        private bool _hasHeartStar;
+        private bool _hasHeartStarLocal;
+
+        public void Awake()
+        {
+            OnHasHeartStarChanged(false, false, false);
+            _hasHeartStar.OnChange += OnHasHeartStarChanged;
+        }
 
         private void Update()
         {
             if (IsOwner && Input.GetMouseButtonDown(0) && InputEnabled)
             {
-                if (_hasHeartStar)
+                if (_hasHeartStarLocal)
                 {
                     BadLogger.LogInfo("Throwing HeartStar", BadLogger.Actor.Client);
                     Vector3 targetPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -41,33 +68,74 @@ namespace Protag
                     AttemptRetrieveHeartStar();
                 }
             }
+
+            // fuck it
+            if (HeartStar.SpawnedHeartStar != null)
+            {
+                bool isRetrieveable = HeartStar.SpawnedHeartStar.SourceProtagNumber != _networkProtag.PlayerNumber ||
+                                      SinglePlayerDebug;
+                _retrieveIndicator.enabled = isRetrieveable;
+
+                if (isRetrieveable)
+                {
+                    Vector2 dir = HeartStar.SpawnedHeartStar.VisualBodyPosition - ThrowPoint;
+                    _retrieveIndicator.SetPositions(new Vector3[]
+                    {
+                        ThrowPoint,
+                        ThrowPoint + dir.normalized * _length
+                    });
+                }
+            }
+            else
+            {
+                _retrieveIndicator.enabled = false;
+            }
+        }
+
+        public void OnDestroy()
+        {
+            _hasHeartStar.OnChange -= OnHasHeartStarChanged;
+        }
+
+        private void OnHasHeartStarChanged(bool prev, bool next, bool asserver)
+        {
+            if (!prev && next)
+            {
+                BadLogger.LogInfo("HeartStar acquired", BadLogger.Actor.Client);
+                _onRetrieveHeartStar?.Invoke();
+            }
+            else if (prev && !next)
+            {
+                BadLogger.LogInfo("HeartStar thrown", BadLogger.Actor.Client);
+                _onThrowHeartStar?.Invoke();
+            }
+
+            _hasHeartStarLocal = next;
+            _hasHeartstarIndicator.SetActive(next);
         }
 
         public override void OnStartClient()
         {
-            // Only player 2 starts with the star
-            _hasHeartStar = _networkProtag.PlayerNumber == 1;
-
-            if (SinglePlayerDebug)
+            if (SinglePlayerDebug || _networkProtag.PlayerNumber == 1)
             {
-                _hasHeartStar = true;
+                SetHasStarHeart_RPC(true);
             }
-        }
 
-        private void OnHeartStarChanged(HeartStar prev, HeartStar next, bool asserver)
-        {
-            BadLogger.LogDebug(
-                $"HeartStar changed from {prev} to {next} on protag {_networkProtag.PlayerNumber}",
-                BadLogger.Actor.Client);
+            _retrieveIndicator.startColor = _networkProtag.PlayerColor;
+            _retrieveIndicator.endColor = _networkProtag.PlayerColor;
+            _retrieveIndicator.positionCount = 2;
         }
 
         private void ThrowHeartStar(Vector2 targetPos)
         {
-            if (!_hasHeartStar)
+            if (!_hasHeartStarLocal)
             {
                 BadLogger.LogError("HeartStar is already out. Cannot throw another one.", BadLogger.Actor.Server);
                 return;
             }
+
+            _hasHeartStarLocal = false;
+            SetHasStarHeart_RPC(false);
 
             Vector2 throwPos = ThrowPoint;
             float angle = Vector2.SignedAngle(Vector2.up, targetPos - throwPos);
@@ -75,35 +143,28 @@ namespace Protag
             heartStar.Initialize(targetPos, throwPos, _networkProtag.PlayerNumber);
 
             Spawn(heartStar.NetworkObject, LocalConnection);
-            _hasHeartStar = false;
             BadLogger.LogInfo($"HeartStar thrown to {targetPos} from {throwPos}", BadLogger.Actor.Server);
         }
 
         public void Retrieve()
         {
-            Retrieve_RPC(Owner);
+            SetHasStarHeart_RPC(true);
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void Retrieve_RPC(NetworkConnection owner, NetworkConnection conn = null)
+        private void SetHasStarHeart_RPC(bool val)
         {
-            Retrieve_TargetRpc(owner);
-        }
-
-        [TargetRpc]
-        private void Retrieve_TargetRpc(NetworkConnection conn)
-        {
-            _hasHeartStar = true;
+            _hasHeartStar.Value = val;
         }
 
         private void AttemptRetrieveHeartStar()
         {
-            if (_hasHeartStar)
+            if (_hasHeartStarLocal)
             {
                 return;
             }
 
-            var heartStar = FindFirstObjectByType<HeartStar>();
+            var heartStar = HeartStar.SpawnedHeartStar;
 
             if (heartStar == null)
             {
@@ -116,14 +177,12 @@ namespace Protag
             BadLogger.LogDebug(
                 $"Retrieving heartstar from p {sourceProtag} as {protagNumber}");
 
-            if (sourceProtag == protagNumber && !SinglePlayerDebug)
+            if (sourceProtag != protagNumber || SinglePlayerDebug)
             {
-                return;
+                heartStar.Retrieve(this);
+
+                BadLogger.LogInfo("HeartStar began retrieving", BadLogger.Actor.Server);
             }
-
-            heartStar.Retrieve(this);
-
-            BadLogger.LogInfo("HeartStar retrieved", BadLogger.Actor.Server);
         }
     }
 }

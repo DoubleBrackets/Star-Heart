@@ -132,8 +132,11 @@ namespace Protag
 
         public UnityEvent OnEnterIdle;
         public UnityEvent OnEnterRetrieve;
+        public static HeartStar SpawnedHeartStar { get; private set; }
 
         public int SourceProtagNumber => _sourceProtagNumber;
+
+        public Vector2 VisualBodyPosition => _visualBody.position;
 
         private HeartStarState _state;
         private float _gravEnabledTimer;
@@ -218,6 +221,8 @@ namespace Protag
 
             float angle = Vector2.SignedAngle(Vector2.up, _targetPosition - throwPos);
             _visualBody.rotation = Quaternion.Euler(0, 0, angle);
+
+            SpawnedHeartStar = this;
         }
 
         public override void OnStartNetwork()

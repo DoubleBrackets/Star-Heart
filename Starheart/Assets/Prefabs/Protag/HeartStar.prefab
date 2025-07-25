@@ -9920,7 +9920,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 4551010333527506108}
   _radiusLineRenderer: {fileID: 0}
   _radius: 1000
-  _gravityAcceleration: 10
+  _gravityAcceleration: 9
   _gravityType: 1
 --- !u!1 &6026983283466478921
 GameObject:

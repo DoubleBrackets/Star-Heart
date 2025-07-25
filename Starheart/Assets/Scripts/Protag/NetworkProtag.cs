@@ -19,6 +19,8 @@ namespace Protag
 
         public int PlayerNumber => _playerNumber;
 
+        public Color PlayerColor => _playerColors[_playerNumber];
+
         /// <summary>
         ///     The player number assigned to this protag, either 0 or 1
         /// </summary>
