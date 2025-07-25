@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using FishNet.Connection;
 using FishNet.Object;
 using FishNet.Serializing;
@@ -7,6 +8,12 @@ namespace Protag
 {
     public class NetworkProtag : NetworkBehaviour
     {
+        [SerializeField]
+        private SpriteRenderer _spriteRenderer;
+
+        [SerializeField]
+        private List<Color> _playerColors;
+
         public int PlayerNumber => _playerNumber;
 
         /// <summary>
@@ -30,6 +37,8 @@ namespace Protag
         public override void ReadPayload(NetworkConnection connection, Reader reader)
         {
             _playerNumber = reader.ReadInt32();
+
+            _spriteRenderer.color = _playerColors[_playerNumber];
         }
 
         public override void OnStartNetwork()

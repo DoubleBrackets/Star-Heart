@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DebugTools.Logging;
 using FishNet.Connection;
 using FishNet.Object;
@@ -25,6 +26,8 @@ namespace Protag
             public Vector2 TargetPosition;
             public HeartStarThrower AttemptedRetriever;
 
+            private uint _tick;
+
             public ReplicateData(Vector2 targetPosition, HeartStarThrower attemptedRetriever)
             {
                 TargetPosition = targetPosition;
@@ -32,8 +35,6 @@ namespace Protag
                 Salty = 1f;
                 _tick = 0;
             }
-
-            private uint _tick;
 
             public uint GetTick()
             {
@@ -123,6 +124,12 @@ namespace Protag
         [SerializeField]
         private Transform _visualBody;
 
+        [SerializeField]
+        private SpriteRenderer _heartSpriteRenderer;
+
+        [SerializeField]
+        private List<Color> _heartColors;
+
         public UnityEvent OnEnterIdle;
         public UnityEvent OnEnterRetrieve;
 
@@ -206,6 +213,11 @@ namespace Protag
             _heartRetriever = null;
             _sourceProtagNumber = sourceProtag;
             _gravityBody.position = targetPosition;
+
+            _heartSpriteRenderer.color = _heartColors[_sourceProtagNumber];
+
+            float angle = Vector2.SignedAngle(Vector2.right, _targetPosition - throwPos);
+            _visualBody.rotation = Quaternion.Euler(0, 0, angle);
         }
 
         public override void OnStartNetwork()
