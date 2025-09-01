@@ -154,6 +154,8 @@ namespace Protag
         public event Action OnJump;
 
         // Inputs
+        private MovementData _lastInput;
+
         private float _horizontalInput;
         private bool _jumpInput;
 
@@ -277,12 +279,17 @@ namespace Protag
             {
                 if (IsServerStarted || !IsOwner)
                 {
-                    _horizontalInput = horizontal;
+                    _lastInput = data;
                 }
             }
             else
             {
-                horizontal = _horizontalInput;
+                // non-created tick; use server-side inputs
+                horizontal = _lastInput.HorizontalInput;
+                data.InDialog = _lastInput.InDialog;
+
+                // Recalculate gravity for non-created ticks using server-side
+                data.GravityEffect = GravityManager.Instance.CalculateGravity(_rb.position);
             }
 
             // Unpause for created ticks
